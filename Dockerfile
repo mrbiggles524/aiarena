@@ -17,6 +17,9 @@ COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 COPY .env* ./
 
+# Make startup script executable
+RUN chmod +x backend/railway_start.sh
+
 # Set working directory
 WORKDIR /app/backend
 
@@ -28,5 +31,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
 # Run the application
-CMD ["python", "start_server.py"]
+# Use startup script that reads PORT from Railway environment
+CMD ["/bin/bash", "railway_start.sh"]
 
