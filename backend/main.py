@@ -110,9 +110,14 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Allow all origins in production (since frontend is served from same domain)
+# For production, we serve frontend from the same origin, so CORS should allow all
+cors_origins = ["*"] if settings.ENVIRONMENT == "production" else (
+    settings.FRONTEND_URL.split(",") if "," in settings.FRONTEND_URL else [settings.FRONTEND_URL]
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.FRONTEND_URL.split(",") if "," in settings.FRONTEND_URL else [settings.FRONTEND_URL],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
