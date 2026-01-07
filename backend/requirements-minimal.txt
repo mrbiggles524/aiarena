@@ -1,0 +1,30 @@
+# Minimal requirements for MVP (without optional AI providers)
+# Use this if you only want to test the API structure
+
+fastapi
+uvicorn[standard]
+websockets
+python-multipart
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+pydantic
+pydantic-settings
+httpx
+aiohttp
+python-dateutil
+pytz
+loguru
+
+# Optional AI providers (install separately if needed):
+# openai
+# anthropic
+# google-generativeai
+
+# Optional for PostgreSQL (SQLite works for MVP):
+# psycopg2-binary
+
+# Optional payment processing:
+# stripe
+

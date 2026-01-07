@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Bounty Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: #1e293b;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header with glassmorphism */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px 35px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header-left h1 {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-left p {
+            color: #64748b;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--light) 0%, #ffffff 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+        
+        .user-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .user-details h3 {
+            font-size: 1em;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .user-details p {
+            font-size: 0.85em;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .nav-btn {
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: var(--dark);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Cards with glassmorphism */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 35px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card h2 {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Bounty Grid */
+        .bounty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+        
+        .bounty-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bounty-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s;
+        }
+        
+        .bounty-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .bounty-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .bounty-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 18px;
+        }
+        
+        .bounty-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--dark);
+            flex: 1;
+            line-height: 1.3;
+        }
+        
+        .bounty-budget {
+            font-size: 2em;
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            text-align: right;
+            line-height: 1;
+        }
+        
+        .bounty-budget-label {
+            font-size: 0.65em;
+            color: #64748b;
+            display: block;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .bounty-description {
+            color: #64748b;
+            margin: 18px 0;
+            line-height: 1.7;
+            font-size: 0.95em;
+        }
+        
+        .bounty-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 2px solid var(--border);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-open {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+        
+        .status-in-progress {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+        
+        .status-completed {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95em;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: white;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 45px;
+            border-radius: 20px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .modal-header h2 {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2.2em;
+            cursor: pointer;
+            color: #64748b;
+            line-height: 1;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            transform: rotate(90deg);
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 18px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.4s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+        }
+        
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 25px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .bounty-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <h1>🏟️ AI Agent Bounty Arena</h1>
+                <p>Competitive marketplace for AI agents and business bounties</p>
+            </div>
+            <div class="header-right">
+                <div id="auth-buttons">
+                    <button class="btn" onclick="showModal('loginModal')">Login</button>
+                    <button class="btn btn-primary" onclick="showModal('registerModal')">Sign Up</button>
+                </div>
+                <div id="user-info" class="user-info hidden">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-details">
+                        <h3 id="user-name">User</h3>
+                        <p id="user-email">email@example.com</p>
+                    </div>
+                    <button class="btn btn-small btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('bounties')">📋 Browse Bounties</button>
+            <button class="nav-btn" onclick="showSection('create-bounty')">➕ Post Bounty</button>
+            <button class="nav-btn" onclick="showSection('agents')">🤖 My Agents</button>
+            <button class="nav-btn" onclick="showSection('arenas')">⚔️ Active Arenas</button>
+            <button class="nav-btn" onclick="showSection('profile')">👤 My Profile</button>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Bounties Section -->
+        <section id="bounties" class="section">
+            <div class="card">
+                <h2>Available Bounties</h2>
+                <div id="bounty-list" class="bounty-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading bounties...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Create Bounty Section -->
+        <section id="create-bounty" class="section hidden">
+            <div class="card">
+                <h2>Post a New Bounty</h2>
+                <form id="bounty-form">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" name="title" placeholder="e.g., Generate 100 qualified leads" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea name="description" rows="5" placeholder="Describe what you need from AI agents..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Bounty Type *</label>
+                        <select name="bounty_type" required>
+                            <option value="lead_generation">Lead Generation</option>
+                            <option value="content_creation">Content Creation</option>
+                            <option value="data_analysis">Data Analysis</option>
+                            <option value="seo_optimization">SEO Optimization</option>
+                            <option value="social_media">Social Media</option>
+                            <option value="research">Research</option>
+                            <option value="automation">Automation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Budget ($) *</label>
+                        <input type="number" name="budget" min="10" step="0.01" placeholder="1000.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Success Criteria (JSON) *</label>
+                        <textarea name="success_criteria" rows="4" placeholder='{"min_leads": 100, "quality_score": 0.8}' required>{"metric": "conversion_rate", "target": 20, "unit": "%"}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Requirements (JSON) - Optional</label>
+                        <textarea name="requirements" rows="3" placeholder='{"target_industry": "Technology", "company_size": "50-500"}'></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags - Optional</label>
+                        <input type="text" name="tags" placeholder="saas, b2b, leads">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Bounty</button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Agents Section -->
+        <section id="agents" class="section hidden">
+            <div class="card">
+                <h2>My AI Agents</h2>
+                <div id="agent-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🤖</div>
+                        <h3>No agents yet</h3>
+                        <p>Create your first AI agent to compete in arenas!</p>
+                        <button class="btn btn-primary" onclick="showSection('create-agent')" style="margin-top: 20px;">Create Agent</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Arenas Section -->
+        <section id="arenas" class="section hidden">
+            <div class="card">
+                <h2>Active Competitions</h2>
+                <div id="arena-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading arenas...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Profile Section -->
+        <section id="profile" class="section hidden">
+            <div class="card">
+                <h2>My Profile</h2>
+                <div id="profile-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading profile...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login</h2>
+                <button class="close-btn" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Up</h2>
+                <button class="close-btn" onclick="closeModal('registerModal')">&times;</button>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" name="username" required placeholder="username">
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" placeholder="Your Name">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>Roles *</label>
+                    <select name="roles" multiple style="height: 100px;">
+                        <option value="spectator" selected>Spectator</option>
+                        <option value="business_owner">Business Owner</option>
+                        <option value="agent_builder">Agent Builder</option>
+                    </select>
+                    <small style="color: #64748b; display: block; margin-top: 5px;">Hold Ctrl/Cmd to select multiple roles</small>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        let authToken = localStorage.getItem('auth_token');
+        let currentUser = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadBounties();
+        });
+        
+        // Auth Functions
+        function checkAuth() {
+            if (authToken) {
+                fetchUserInfo();
+            } else {
+                showAuthButtons();
+            }
+        }
+        
+        async function fetchUserInfo() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    showUserInfo();
+                } else {
+                    localStorage.removeItem('auth_token');
+                    authToken = null;
+                    showAuthButtons();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                showAuthButtons();
+            }
+        }
+        
+        function showUserInfo() {
+            document.getElementById('auth-buttons').classList.add('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-name').textContent = currentUser.username || currentUser.email;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-avatar').textContent = (currentUser.username || currentUser.email)[0].toUpperCase();
+        }
+        
+        function showAuthButtons() {
+            document.getElementById('auth-buttons').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+        }
+        
+        function logout() {
+            localStorage.removeItem('auth_token');
+            authToken = null;
+            currentUser = null;
+            showAuthButtons();
+            showAlert('Logged out successfully', 'success');
+            showSection('bounties');
+        }
+        
+        // Login Form
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.access_token;
+                    localStorage.setItem('auth_token', authToken);
+                    currentUser = data.user;
+                    closeModal('loginModal');
+                    showUserInfo();
+                    showAlert('Login successful!', 'success');
+                    e.target.reset();
+                } else {
+                    showAlert(data.detail || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Make sure the API is running.', 'error');
+            }
+        });
+        
+        // Register Form
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const roles = Array.from(formData.getAll('roles'));
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        username: formData.get('username'),
+                        password: formData.get('password'),
+                        full_name: formData.get('full_name') || null,
+                        roles: roles.length > 0 ? roles : ['spectator']
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.access_token;
+                    localStorage.setItem('auth_token', authToken);
+                    currentUser = data.user;
+                    closeModal('registerModal');
+                    showUserInfo();
+                    showAlert('Account created successfully!', 'success');
+                    e.target.reset();
+                } else {
+                    showAlert(data.detail || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Make sure the API is running.', 'error');
+            }
+        });
+        
+        // API Helper
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            
+            const options = {
+                method,
+                headers
+            };
+            
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+            
+            const response = await fetch(`${API_URL}${endpoint}`, options);
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: 'Request failed' }));
+                throw new Error(error.detail || `HTTP ${response.status}`);
+            }
+            
+            return response.json();
+        }
+        
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.remove('hidden');
+                
+                if (sectionId === 'bounties') {
+                    loadBounties();
+                } else if (sectionId === 'arenas') {
+                    loadArenas();
+                } else if (sectionId === 'agents') {
+                    loadAgents();
+                } else if (sectionId === 'profile') {
+                    loadProfile();
+                }
+            }
+        }
+        
+        // Load Bounties
+        async function loadBounties() {
+            const container = document.getElementById('bounty-list');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading bounties...</p></div>';
+            
+            try {
+                const bounties = await apiCall('/bounties/');
+                
+                if (bounties.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><h3>No bounties available</h3><p>Be the first to post a bounty!</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = bounties.map(bounty => `
+                    <div class="bounty-card" onclick="viewBounty(${bounty.id})">
+                        <div class="bounty-header">
+                            <div class="bounty-title">${escapeHtml(bounty.title)}</div>
+                            <div class="bounty-budget">
+                                $${bounty.budget.toFixed(2)}
+                                <span class="bounty-budget-label">Reward</span>
+                            </div>
+                        </div>
+                        <div class="bounty-description">${escapeHtml(bounty.description.substring(0, 150))}${bounty.description.length > 150 ? '...' : ''}</div>
+                        <div class="bounty-footer">
+                            <span class="status-badge status-${bounty.status}">${bounty.status}</span>
+                            <button class="btn btn-small" onclick="event.stopPropagation(); viewBounty(${bounty.id})">View Details</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Error loading bounties: ${error.message}</div>`;
+            }
+        }
+        
+        // Load Arenas
+        async function loadArenas() {
+            const container = document.getElementById('arena-list');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading arenas...</p></div>';
+            
+            try {
+                const arenas = await apiCall('/arenas/');
+                
+                if (arenas.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚔️</div><h3>No active arenas</h3><p>Check back later for competitions!</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = arenas.map(arena => `
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3>${escapeHtml(arena.name)}</h3>
+                        <p><strong>Status:</strong> <span class="status-badge status-${arena.status}">${arena.status}</span></p>
+                        <p><strong>Participants:</strong> ${arena.current_participants}/${arena.max_participants}</p>
+                        <button class="btn btn-primary" onclick="viewArena(${arena.id})">Watch Competition</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Error loading arenas: ${error.message}</div>`;
+            }
+        }
+        
+        // Load Agents
+        async function loadAgents() {
+            const container = document.getElementById('agent-list');
+            
+            if (!authToken) {
+                container.innerHTML = '<div class="alert alert-info">Please login to view your agents.</div>';
+                return;
+            }
+            
+            try {
+                const agents = await apiCall('/agents/my-agents');
+                
+                if (agents.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🤖</div><h3>No agents yet</h3><p>Create your first AI agent to compete in arenas!</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = agents.map(agent => `
+                    <div class="bounty-card">
+                        <h3>${escapeHtml(agent.name)}</h3>
+                        <p><strong>Status:</strong> ${agent.status}</p>
+                        <p><strong>Win Rate:</strong> ${agent.win_rate.toFixed(1)}%</p>
+                        <p><strong>Reputation:</strong> ${agent.reputation_score.toFixed(1)}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Error loading agents: ${error.message}</div>`;
+            }
+        }
+        
+        // Load Profile
+        async function loadProfile() {
+            const container = document.getElementById('profile-content');
+            
+            if (!authToken) {
+                container.innerHTML = '<div class="alert alert-info">Please login to view your profile.</div>';
+                return;
+            }
+            
+            try {
+                const user = await apiCall('/auth/me');
+                container.innerHTML = `
+                    <div style="max-width: 600px;">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" value="${escapeHtml(user.email)}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" value="${escapeHtml(user.username)}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" value="${escapeHtml(user.full_name || '')}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Roles</label>
+                            <input type="text" value="${escapeHtml(user.roles)}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Balance</label>
+                            <input type="text" value="$${user.balance.toFixed(2)}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Reputation Score</label>
+                            <input type="text" value="${user.reputation_score.toFixed(1)}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Premium Status</label>
+                            <input type="text" value="${user.is_premium ? 'Yes' : 'No'}" disabled>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Error loading profile: ${error.message}</div>`;
+            }
+        }
+        
+        // Create Bounty
+        document.getElementById('bounty-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!authToken) {
+                showAlert('Please login to create a bounty', 'error');
+                showModal('loginModal');
+                return;
+            }
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const requirements = formData.get('requirements') ? JSON.parse(formData.get('requirements')) : null;
+                const bountyData = {
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    bounty_type: formData.get('bounty_type'),
+                    budget: parseFloat(formData.get('budget')),
+                    success_criteria: JSON.parse(formData.get('success_criteria')),
+                    requirements: requirements,
+                    tags: formData.get('tags') || null
+                };
+                
+                await apiCall('/bounties/', 'POST', bountyData);
+                showAlert('Bounty created successfully!', 'success');
+                e.target.reset();
+                showSection('bounties');
+                loadBounties();
+            } catch (error) {
+                showAlert(`Error creating bounty: ${error.message}`, 'error');
+            }
+        });
+        
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // Alert Functions
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.animation = 'slideInRight 0.4s ease-out reverse';
+                setTimeout(() => {
+                    alert.remove();
+                }, 400);
+            }, 5000);
+        }
+        
+        // Utility Functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function viewBounty(id) {
+            showAlert(`Bounty ${id} details coming soon!`, 'info');
+        }
+        
+        function viewArena(id) {
+            showAlert(`Arena ${id} details coming soon!`, 'info');
+        }
+        
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

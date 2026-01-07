@@ -1,0 +1,17 @@
+Your Access Token (Save this!):
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImV4cCI6MTc2NzcyNTI0OH0.puWZ0FDbkabDoJn4Hd5VozV-Fot1EdeFMoC3PrEaA54
+
+User Info:
+- ID: 2
+- Email: bobbystandish1@gmail.com
+- Username: bobbystandish
+- Role: spectator
+
+How to Use:
+1. In Swagger UI, click "Authorize" button
+2. Paste token in "Value" field
+3. Click "Authorize" then "Close"
+4. All requests will now be authenticated!
+
+Token expires in 30 minutes. Use /api/auth/login to get a new one.
+
