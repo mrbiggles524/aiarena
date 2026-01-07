@@ -20,8 +20,13 @@ from sqlalchemy import desc
 
 # Initialize logger
 import os
-os.makedirs("logs", exist_ok=True)
-logger.add("logs/aiarena.log", rotation="10 MB", retention="7 days", level="INFO")
+# Create logs directory if it doesn't exist (may fail in read-only filesystems, that's OK)
+try:
+    os.makedirs("logs", exist_ok=True)
+    logger.add("logs/aiarena.log", rotation="10 MB", retention="7 days", level="INFO")
+except (OSError, PermissionError):
+    # If we can't create logs directory, just log to console (Railway will capture this)
+    logger.add(lambda msg: print(msg), level="INFO")
 
 # Security
 security = HTTPBearer()
