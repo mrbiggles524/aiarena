@@ -110,11 +110,21 @@ app = FastAPI(
 )
 
 # CORS middleware
-# Allow all origins in production (since frontend is served from same domain)
-# For production, we serve frontend from the same origin, so CORS should allow all
-cors_origins = ["*"] if settings.ENVIRONMENT == "production" else (
-    settings.FRONTEND_URL.split(",") if "," in settings.FRONTEND_URL else [settings.FRONTEND_URL]
-)
+# In production, frontend is served from same origin, so we need to allow the Railway domain
+# Get the current host from environment or use FRONTEND_URL
+if settings.ENVIRONMENT == "production" or os.getenv("RAILWAY_ENVIRONMENT"):
+    # Production: allow the Railway domain and FRONTEND_URL
+    cors_origins = [
+        settings.FRONTEND_URL,
+        "https://web-production-fb8c.up.railway.app",
+        "http://localhost:8000",  # For local testing
+    ]
+    # Remove duplicates and empty strings
+    cors_origins = list(set([origin for origin in cors_origins if origin]))
+else:
+    # Development: use FRONTEND_URL
+    cors_origins = settings.FRONTEND_URL.split(",") if "," in settings.FRONTEND_URL else [settings.FRONTEND_URL]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
