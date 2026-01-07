@@ -17,20 +17,16 @@ COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 COPY .env* ./
 
-# Make startup script executable
-RUN chmod +x backend/railway_start.sh
-
 # Set working directory
 WORKDIR /app/backend
 
-# Expose port
+# Expose port (Railway will set PORT env var)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/health', timeout=5)" || exit 1
+# Health check (simplified - Railway has its own health checks)
+# HEALTHCHECK removed - Railway handles this
 
 # Run the application
-# Use startup script that reads PORT from Railway environment
-CMD ["/bin/bash", "railway_start.sh"]
+# Use Python script to read PORT from Railway environment
+CMD ["python", "railway_start.py"]
 
