@@ -25,4 +25,4 @@ EXPOSE 8000
 
 # Run the application using exec form (most reliable)
 # railway_start.py reads PORT from environment automatically
-ENTRYPOINT ["python", "railway_start.py"]
+CMD ["python", "railway_start.py"]
