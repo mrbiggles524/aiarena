@@ -53,9 +53,9 @@ async def create_bounty(
     db: Session = Depends(get_db)
 ):
     """Create a new bounty"""
-    # Check if user has bounty poster role
-    if not current_user.has_role(UserRole.BOUNTY_POSTER) and not current_user.has_role(UserRole.ADMIN):
-        raise HTTPException(status_code=403, detail="You need bounty poster role to create bounties")
+    # Allow all authenticated users to create bounties (role check removed)
+    # DEBUG: Log that we're creating a bounty without role check
+    print(f"[DEBUG] Creating bounty for user {current_user.id} ({current_user.username}) - no role check")
     
     # Calculate fees
     platform_fee = bounty_data.budget * (settings.PLATFORM_FEE_PERCENTAGE / 100)
