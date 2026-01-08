@@ -1267,8 +1267,137 @@
             return div.innerHTML;
         }
         
-        function viewBounty(id) {
-            showAlert(`Bounty ${id} details coming soon!`, 'info');
+        async function viewBounty(id) {
+            try {
+                // Fetch bounty details
+                const bounty = await apiCall(`/bounties/${id}`);
+                
+                // Parse JSON fields
+                let successCriteria = {};
+                let requirements = {};
+                try {
+                    successCriteria = typeof bounty.success_criteria === 'string' 
+                        ? JSON.parse(bounty.success_criteria) 
+                        : bounty.success_criteria;
+                } catch (e) {
+                    successCriteria = { error: 'Invalid JSON' };
+                }
+                
+                try {
+                    requirements = bounty.requirements && typeof bounty.requirements === 'string'
+                        ? JSON.parse(bounty.requirements)
+                        : (bounty.requirements || {});
+                } catch (e) {
+                    requirements = {};
+                }
+                
+                // Create modal content
+                const modalContent = `
+                    <div class="modal-header">
+                        <h2>${escapeHtml(bounty.title)}</h2>
+                        <button class="close-btn" onclick="closeModal('bountyDetailModal')">&times;</button>
+                    </div>
+                    <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                        <div style="margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div>
+                                    <span class="status-badge status-${bounty.status}" style="font-size: 0.9em; padding: 8px 16px;">
+                                        ${bounty.status}
+                                    </span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 2em; font-weight: 700; color: var(--primary);">
+                                        $${bounty.budget.toFixed(2)}
+                                    </div>
+                                    <div style="color: #64748b; font-size: 0.9em;">Total Budget</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="margin-bottom: 10px; color: var(--dark);">Description</h3>
+                            <p style="color: #64748b; line-height: 1.6;">${escapeHtml(bounty.description)}</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                            <div>
+                                <h3 style="margin-bottom: 10px; color: var(--dark);">Bounty Type</h3>
+                                <p style="color: #64748b; text-transform: capitalize;">${escapeHtml(bounty.bounty_type.replace('_', ' '))}</p>
+                            </div>
+                            <div>
+                                <h3 style="margin-bottom: 10px; color: var(--dark);">Created</h3>
+                                <p style="color: #64748b;">${new Date(bounty.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="margin-bottom: 10px; color: var(--dark);">Success Criteria</h3>
+                            <div style="background: var(--bg-secondary); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em;">
+                                <pre style="margin: 0; color: #64748b; white-space: pre-wrap;">${escapeHtml(JSON.stringify(successCriteria, null, 2))}</pre>
+                            </div>
+                        </div>
+                        
+                        ${Object.keys(requirements).length > 0 ? `
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="margin-bottom: 10px; color: var(--dark);">Requirements</h3>
+                            <div style="background: var(--bg-secondary); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em;">
+                                <pre style="margin: 0; color: #64748b; white-space: pre-wrap;">${escapeHtml(JSON.stringify(requirements, null, 2))}</pre>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${bounty.tags ? `
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="margin-bottom: 10px; color: var(--dark);">Tags</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${bounty.tags.split(',').map(tag => `
+                                    <span style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em;">
+                                        ${escapeHtml(tag.trim())}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                            <div>
+                                <div style="color: #64748b; font-size: 0.9em; margin-bottom: 5px;">Platform Fee</div>
+                                <div style="font-size: 1.2em; font-weight: 600; color: var(--dark);">
+                                    $${bounty.platform_fee.toFixed(2)}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: #64748b; font-size: 0.9em; margin-bottom: 5px;">Agent Reward</div>
+                                <div style="font-size: 1.2em; font-weight: 600; color: var(--primary);">
+                                    $${bounty.agent_reward.toFixed(2)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Create or update modal
+                let modal = document.getElementById('bountyDetailModal');
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'bountyDetailModal';
+                    modal.className = 'modal';
+                    document.body.appendChild(modal);
+                }
+                
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 800px;">
+                        ${modalContent}
+                    </div>
+                `;
+                
+                // Show modal
+                showModal('bountyDetailModal');
+                
+            } catch (error) {
+                console.error('Error loading bounty:', error);
+                showAlert(`Error loading bounty details: ${error.message}`, 'error');
+            }
         }
         
         function viewArena(id) {
