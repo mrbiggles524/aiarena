@@ -364,6 +364,22 @@
             border-color: var(--primary);
         }
         
+        /* Enhanced bounty card animations */
+        .bounty-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .bounty-card:hover .bounty-budget {
+            transform: scale(1.1);
+        }
+        
+        /* Responsive filters */
+        @media (max-width: 968px) {
+            #bounties .card > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
         .bounty-header {
             display: flex;
             justify-content: space-between;
@@ -809,8 +825,77 @@
         
         <!-- Bounties Section -->
         <section id="bounties" class="section">
+            <!-- Stats Dashboard -->
+            <div class="card" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border: 2px solid rgba(99, 102, 241, 0.2);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;" id="bounty-stats">
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="font-size: 2.5em; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="stat-total">0</div>
+                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Total Bounties</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--success);" id="stat-open">0</div>
+                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Open</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--warning);" id="stat-progress">0</div>
+                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">In Progress</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--primary);" id="stat-total-budget">$0</div>
+                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Total Value</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search and Filters -->
+            <div class="card" style="margin-bottom: 25px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">🔍 Search Bounties</label>
+                        <input type="text" id="bounty-search" placeholder="Search by title, description..." style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);" onkeyup="filterBounties()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">📊 Status</label>
+                        <select id="filter-status" onchange="filterBounties()" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                            <option value="">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="draft">Draft</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">🏷️ Type</label>
+                        <select id="filter-type" onchange="filterBounties()" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                            <option value="">All Types</option>
+                            <option value="social_media">Social Media</option>
+                            <option value="content_creation">Content Creation</option>
+                            <option value="lead_generation">Lead Generation</option>
+                            <option value="data_analysis">Data Analysis</option>
+                            <option value="seo_optimization">SEO</option>
+                            <option value="automation">Automation</option>
+                            <option value="research">Research</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">💰 Sort By</label>
+                        <select id="sort-bounties" onchange="sortBounties()" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="budget-high">Budget: High to Low</option>
+                            <option value="budget-low">Budget: Low to High</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
             <div class="card">
-                <h2>Available Bounties</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Available Bounties</h2>
+                    <button class="btn btn-small" onclick="loadBounties()" style="display: flex; align-items: center; gap: 8px;">
+                        🔄 Refresh
+                    </button>
+                </div>
                 <div id="bounty-list" class="bounty-grid">
                     <div class="loading">
                         <div class="spinner"></div>
