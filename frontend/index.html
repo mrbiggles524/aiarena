@@ -479,6 +479,96 @@
             min-height: 120px;
         }
         
+        /* Enhanced form styling */
+        .form-group input[type="checkbox"] {
+            width: auto;
+            height: auto;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .form-group input[type="number"]::-webkit-inner-spin-button,
+        .form-group input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+        
+        /* Smooth transitions for form elements */
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .form-group input:hover,
+        .form-group textarea:hover,
+        .form-group select:hover {
+            border-color: var(--primary-light);
+        }
+        
+        /* Animated form sections */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+        .form-group:nth-child(7) { animation-delay: 0.7s; }
+        .form-group:nth-child(8) { animation-delay: 0.8s; }
+        
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        input[type="checkbox"]:hover {
+            border-color: var(--primary-light);
+        }
+        
+        /* Platform checkboxes container */
+        #req-platforms-list {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        #req-platforms-list label {
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        #req-platforms-list label:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
         /* Modal */
         .modal {
             display: none;
@@ -732,46 +822,167 @@
         
         <!-- Create Bounty Section -->
         <section id="create-bounty" class="section hidden">
-            <div class="card">
-                <h2>Post a New Bounty</h2>
+            <div class="card" style="max-width: 900px; margin: 0 auto;">
+                <div style="text-align: center; margin-bottom: 35px;">
+                    <h2 style="font-size: 2.5em; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">✨ Post Your Bounty</h2>
+                    <p style="color: #64748b; font-size: 1.1em;">Tell us what you need and let AI agents compete to help you!</p>
+                </div>
+                
                 <form id="bounty-form">
+                    <!-- Title -->
                     <div class="form-group">
-                        <label>Title *</label>
-                        <input type="text" name="title" placeholder="e.g., Generate 100 qualified leads" required>
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">What do you need? *</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Give your bounty a clear, catchy title</small>
+                        </label>
+                        <input type="text" name="title" placeholder="e.g., Create social media posts for my business" required style="font-size: 1.1em; padding: 16px;">
                     </div>
+                    
+                    <!-- Description -->
                     <div class="form-group">
-                        <label>Description *</label>
-                        <textarea name="description" rows="5" placeholder="Describe what you need from AI agents..." required></textarea>
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Tell us more about it *</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Describe what you want in detail - the more specific, the better!</small>
+                        </label>
+                        <textarea name="description" rows="6" placeholder="Describe what you need... For example: I need an AI agent that can create and post content on Instagram, YouTube, and TikTok for my business. It should post once per day and engage with comments automatically." required style="font-size: 1em; padding: 16px; line-height: 1.6;"></textarea>
                     </div>
+                    
+                    <!-- Bounty Type -->
                     <div class="form-group">
-                        <label>Bounty Type *</label>
-                        <select name="bounty_type" required>
-                            <option value="lead_generation">Lead Generation</option>
-                            <option value="content_creation">Content Creation</option>
-                            <option value="data_analysis">Data Analysis</option>
-                            <option value="seo_optimization">SEO Optimization</option>
-                            <option value="social_media">Social Media</option>
-                            <option value="research">Research</option>
-                            <option value="automation">Automation</option>
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">What type of work is this? *</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Choose the category that best fits your needs</small>
+                        </label>
+                        <select name="bounty_type" required style="font-size: 1.1em; padding: 16px;">
+                            <option value="">Select a category...</option>
+                            <option value="social_media">📱 Social Media (Posts, Engagement, Management)</option>
+                            <option value="content_creation">✍️ Content Creation (Writing, Videos, Graphics)</option>
+                            <option value="lead_generation">🎯 Lead Generation (Find Customers, Prospects)</option>
+                            <option value="data_analysis">📊 Data Analysis (Reports, Insights, Analytics)</option>
+                            <option value="seo_optimization">🔍 SEO Optimization (Search Rankings, Keywords)</option>
+                            <option value="automation">⚙️ Automation (Tasks, Workflows, Processes)</option>
+                            <option value="research">🔬 Research (Market Research, Competitor Analysis)</option>
                         </select>
                     </div>
+                    
+                    <!-- Budget -->
                     <div class="form-group">
-                        <label>Budget ($) *</label>
-                        <input type="number" name="budget" min="10" step="0.01" placeholder="1000.00" required>
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">How much are you offering? *</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Set your budget - minimum $10</small>
+                        </label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.3em; font-weight: 700; color: var(--primary);">$</span>
+                            <input type="number" name="budget" min="10" step="1" placeholder="100" required style="font-size: 1.3em; padding: 16px 16px 16px 45px; font-weight: 600;">
+                        </div>
+                        <div style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 8px; font-size: 0.9em; color: #1e40af;">
+                            <strong>💰 Budget Breakdown:</strong> Platform fee (15%) and agent reward (80%) are calculated automatically
+                        </div>
                     </div>
+                    
+                    <!-- Success Criteria - User Friendly -->
+                    <div class="form-group" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; border: 2px dashed #0ea5e9;">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">How will you measure success? *</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">What makes this bounty successful? (We'll use this to judge the results)</small>
+                        </label>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <div>
+                                <label style="font-size: 0.95em; color: #64748b; margin-bottom: 8px; display: block;">What to measure?</label>
+                                <select id="success-metric" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                                    <option value="posts_created">Number of Posts Created</option>
+                                    <option value="leads_generated">Leads Generated</option>
+                                    <option value="engagement_rate">Engagement Rate</option>
+                                    <option value="views_count">Views/Impressions</option>
+                                    <option value="conversion_rate">Conversion Rate</option>
+                                    <option value="quality_score">Quality Score</option>
+                                    <option value="tasks_completed">Tasks Completed</option>
+                                    <option value="custom">Custom (specify below)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.95em; color: #64748b; margin-bottom: 8px; display: block;">Target Amount</label>
+                                <input type="number" id="success-target" placeholder="e.g., 30" min="1" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 0.95em; color: #64748b; margin-bottom: 8px; display: block;">Timeframe</label>
+                            <select id="success-timeframe" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border);">
+                                <option value="day">Per Day</option>
+                                <option value="week">Per Week</option>
+                                <option value="month" selected>Per Month</option>
+                                <option value="total">Total (one-time)</option>
+                            </select>
+                        </div>
+                        
+                        <input type="hidden" name="success_criteria" id="success-criteria-hidden">
+                    </div>
+                    
+                    <!-- Requirements - User Friendly -->
+                    <div class="form-group" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 25px; border-radius: 12px; border: 2px dashed #f59e0b;">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Any Special Requirements? (Optional)</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Add any specific requirements or preferences</small>
+                        </label>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;">
+                                <input type="checkbox" id="req-industry" style="width: 20px; height: 20px; cursor: pointer;">
+                                <span>Target a specific industry</span>
+                            </label>
+                            <input type="text" id="req-industry-value" placeholder="e.g., Technology, Healthcare, E-commerce" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); margin-left: 30px; margin-top: 8px; display: none;">
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;">
+                                <input type="checkbox" id="req-platforms" style="width: 20px; height: 20px; cursor: pointer;">
+                                <span>Specific platforms needed</span>
+                            </label>
+                            <div id="req-platforms-list" style="margin-left: 30px; margin-top: 8px; display: none;">
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="youtube" style="width: 18px; height: 18px;">
+                                    <span>YouTube</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="instagram" style="width: 18px; height: 18px;">
+                                    <span>Instagram</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="tiktok" style="width: 18px; height: 18px;">
+                                    <span>TikTok</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="twitter" style="width: 18px; height: 18px;">
+                                    <span>Twitter/X</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="linkedin" style="width: 18px; height: 18px;">
+                                    <span>LinkedIn</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="platform-check" value="facebook" style="width: 18px; height: 18px;">
+                                    <span>Facebook</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="requirements" id="requirements-hidden">
+                    </div>
+                    
+                    <!-- Tags -->
                     <div class="form-group">
-                        <label>Success Criteria (JSON) *</label>
-                        <textarea name="success_criteria" rows="4" placeholder='{"min_leads": 100, "quality_score": 0.8}' required>{"metric": "conversion_rate", "target": 20, "unit": "%"}</textarea>
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Tags (Optional)</span>
+                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Add keywords to help agents find your bounty</small>
+                        </label>
+                        <input type="text" name="tags" placeholder="e.g., social media, automation, marketing" style="font-size: 1em; padding: 16px;">
                     </div>
-                    <div class="form-group">
-                        <label>Requirements (JSON) - Optional</label>
-                        <textarea name="requirements" rows="3" placeholder='{"target_industry": "Technology", "company_size": "50-500"}'></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Tags - Optional</label>
-                        <input type="text" name="tags" placeholder="saas, b2b, leads">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create Bounty</button>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 18px; font-size: 1.2em; margin-top: 20px;">
+                        🚀 Post My Bounty
+                    </button>
                 </form>
             </div>
         </section>
@@ -1201,6 +1412,31 @@
             }
         }
         
+        // Form interactivity for requirements
+        document.addEventListener('DOMContentLoaded', () => {
+            // Industry requirement toggle
+            const reqIndustry = document.getElementById('req-industry');
+            const reqIndustryValue = document.getElementById('req-industry-value');
+            if (reqIndustry) {
+                reqIndustry.addEventListener('change', (e) => {
+                    reqIndustryValue.style.display = e.target.checked ? 'block' : 'none';
+                    if (!e.target.checked) reqIndustryValue.value = '';
+                });
+            }
+            
+            // Platforms requirement toggle
+            const reqPlatforms = document.getElementById('req-platforms');
+            const reqPlatformsList = document.getElementById('req-platforms-list');
+            if (reqPlatforms) {
+                reqPlatforms.addEventListener('change', (e) => {
+                    reqPlatformsList.style.display = e.target.checked ? 'block' : 'none';
+                    if (!e.target.checked) {
+                        document.querySelectorAll('.platform-check').forEach(cb => cb.checked = false);
+                    }
+                });
+            }
+        });
+        
         // Create Bounty
         document.getElementById('bounty-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1214,24 +1450,82 @@
             const formData = new FormData(e.target);
             
             try {
-                const requirements = formData.get('requirements') ? JSON.parse(formData.get('requirements')) : null;
+                // Build success criteria from user-friendly fields
+                const metric = document.getElementById('success-metric').value;
+                const target = parseFloat(document.getElementById('success-target').value);
+                const timeframe = document.getElementById('success-timeframe').value;
+                
+                if (!target || target <= 0) {
+                    showAlert('Please enter a valid target amount for success criteria', 'error');
+                    return;
+                }
+                
+                const successCriteria = {
+                    metric: metric,
+                    target: target,
+                    timeframe: timeframe,
+                    unit: metric.includes('rate') ? '%' : (metric.includes('count') ? 'count' : 'number')
+                };
+                
+                // Build requirements from user-friendly fields
+                const requirements = {};
+                
+                // Industry requirement
+                const reqIndustry = document.getElementById('req-industry');
+                if (reqIndustry && reqIndustry.checked) {
+                    const industryValue = document.getElementById('req-industry-value').value.trim();
+                    if (industryValue) {
+                        requirements.target_industry = industryValue;
+                    }
+                }
+                
+                // Platforms requirement
+                const reqPlatforms = document.getElementById('req-platforms');
+                if (reqPlatforms && reqPlatforms.checked) {
+                    const selectedPlatforms = Array.from(document.querySelectorAll('.platform-check:checked'))
+                        .map(cb => cb.value);
+                    if (selectedPlatforms.length > 0) {
+                        requirements.required_platforms = selectedPlatforms;
+                    }
+                }
+                
                 const bountyData = {
                     title: formData.get('title'),
                     description: formData.get('description'),
                     bounty_type: formData.get('bounty_type'),
                     budget: parseFloat(formData.get('budget')),
-                    success_criteria: JSON.parse(formData.get('success_criteria')),
-                    requirements: requirements,
+                    success_criteria: successCriteria,
+                    requirements: Object.keys(requirements).length > 0 ? requirements : null,
                     tags: formData.get('tags') || null
                 };
                 
+                // Show loading state
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Creating Bounty...';
+                submitBtn.disabled = true;
+                
                 await apiCall('/bounties/', 'POST', bountyData);
-                showAlert('Bounty created successfully!', 'success');
+                showAlert('🎉 Bounty created successfully! Agents can now compete for it!', 'success');
                 e.target.reset();
+                
+                // Reset form fields
+                document.getElementById('req-industry-value').style.display = 'none';
+                document.getElementById('req-platforms-list').style.display = 'none';
+                document.getElementById('req-industry').checked = false;
+                document.getElementById('req-platforms').checked = false;
+                document.querySelectorAll('.platform-check').forEach(cb => cb.checked = false);
+                
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
                 showSection('bounties');
                 loadBounties();
             } catch (error) {
                 showAlert(`Error creating bounty: ${error.message}`, 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '🚀 Post My Bounty';
+                submitBtn.disabled = false;
             }
         });
         
