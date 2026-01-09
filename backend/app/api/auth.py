@@ -47,9 +47,9 @@ class UserResponse(BaseModel):
     username: str
     full_name: str = None
     roles: str
-    balance: float
-    reputation_score: float
-    is_premium: bool
+    balance: float = 0.0
+    reputation_score: float = 0.0
+    is_premium: bool = False
     
     class Config:
         from_attributes = True
@@ -221,7 +221,29 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: User = Depends(get_current_user)):
+async def get_current_user_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get current user information"""
-    return current_user
+    try:
+        # Refresh user from database to ensure all fields are loaded
+        db.refresh(current_user)
+        
+        # Ensure all required fields have defaults
+        user_data = {
+            "id": current_user.id,
+            "email": current_user.email or "",
+            "username": current_user.username or "",
+            "full_name": current_user.full_name,
+            "roles": current_user.roles or "spectator",
+            "balance": float(current_user.balance) if current_user.balance is not None else 0.0,
+            "reputation_score": float(current_user.reputation_score) if current_user.reputation_score is not None else 0.0,
+            "is_premium": bool(current_user.is_premium) if current_user.is_premium is not None else False
+        }
+        
+        return UserResponse(**user_data)
+    except Exception as e:
+        from loguru import logger
+        logger.error(f"Error serializing user {current_user.id if current_user else 'unknown'}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error retrieving user info: {str(e)}")
 
