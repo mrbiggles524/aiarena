@@ -42,10 +42,19 @@ async def lifespan(app: FastAPI):
     # This will NOT drop existing tables or data
     try:
         Base.metadata.create_all(bind=engine, checkfirst=True)
-        logger.info("✅ Database tables verified/created (existing data preserved)")
+        db_type = "PostgreSQL" if settings.DATABASE_URL.startswith("postgresql") else "SQLite"
+        logger.info(f"✅ Database tables verified/created using {db_type} (existing data preserved)")
+        
+        # Warn if using SQLite on Railway (data won't persist)
+        if os.getenv("RAILWAY_ENVIRONMENT") and settings.DATABASE_URL.startswith("sqlite"):
+            logger.warning("⚠️  WARNING: Using SQLite on Railway - data will be lost on deployments!")
+            logger.warning("⚠️  Add PostgreSQL database in Railway to persist data.")
     except Exception as e:
         logger.error(f"❌ Database initialization error: {e}")
-        raise
+        # Don't crash - allow app to start even if DB init fails
+        # The error will show up in health check
+        import traceback
+        traceback.print_exc()
     
     # Initialize agent sandbox
     from app.services.sandbox import SandboxManager
