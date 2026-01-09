@@ -1879,29 +1879,29 @@
                     return `
                     <div class="bounty-card" onclick="viewBounty(${bounty.id})">
                         <div class="bounty-header">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
-                                    <span style="font-size: 1.2em;">${typeEmoji}</span>
-                                    <div class="bounty-title">${escapeHtml(bounty.title)}</div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap;">
+                                    <span style="font-size: 1.2em; flex-shrink: 0;">${typeEmoji}</span>
+                                    <div class="bounty-title" style="flex: 1; min-width: 0; word-wrap: break-word;">${escapeHtml(bounty.title)}</div>
                                 </div>
-                                <div style="font-size: 0.85em; color: #64748b; margin-top: 4px;">
+                                <div style="font-size: 0.85em; color: #cccccc; margin-top: 4px;">
                                     Posted ${timeAgo}${expiresIn ? ` • Expires in ${expiresIn}` : ''}
                                 </div>
                             </div>
-                            <div class="bounty-budget">
+                            <div class="bounty-budget" style="flex-shrink: 0; margin-top: 10px;">
                                 $${bounty.budget.toFixed(2)}
                                 <span class="bounty-budget-label">Reward</span>
                             </div>
                         </div>
                         <div class="bounty-description">${escapeHtml(bounty.description.substring(0, 150))}${bounty.description.length > 150 ? '...' : ''}</div>
                         <div class="bounty-footer">
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <span class="status-badge status-${bounty.status}">${bounty.status}</span>
-                                ${bounty.tags ? `<span style="font-size: 0.8em; color: #64748b;">🏷️ ${escapeHtml(bounty.tags.split(',')[0])}</span>` : ''}
+                                ${bounty.tags ? `<span style="font-size: 0.8em; color: #cccccc;">🏷️ ${escapeHtml(bounty.tags.split(',')[0])}</span>` : ''}
                             </div>
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); copyBountyLink(${bounty.id})" title="Copy link">🔗</button>
-                                <button class="btn btn-small" onclick="event.stopPropagation(); viewBounty(${bounty.id})">View Details</button>
+                                <button class="btn btn-small" onclick="event.stopPropagation(); viewBounty(${bounty.id})">View</button>
                             </div>
                         </div>
                     </div>
