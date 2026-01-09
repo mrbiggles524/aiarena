@@ -14,7 +14,16 @@ class Settings(BaseSettings):
     """Application settings"""
     
     # Database
+    # Railway automatically provides DATABASE_URL for PostgreSQL
+    # If not set, use SQLite for local development only
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./aiarena.db")
+    
+    # Check if we're on Railway (they set RAILWAY_ENVIRONMENT)
+    if os.getenv("RAILWAY_ENVIRONMENT") and not os.getenv("DATABASE_URL"):
+        raise ValueError(
+            "DATABASE_URL is required on Railway. "
+            "Please add a PostgreSQL database service in Railway and link it to your app."
+        )
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-in-production")

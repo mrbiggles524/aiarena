@@ -38,9 +38,14 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting AI Agent Bounty Arena...")
     
-    # Create database tables
-    Base.metadata.create_all(bind=engine)
-    logger.info("✅ Database initialized")
+    # Create database tables (only if they don't exist - safe for production)
+    # This will NOT drop existing tables or data
+    try:
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+        logger.info("✅ Database tables verified/created (existing data preserved)")
+    except Exception as e:
+        logger.error(f"❌ Database initialization error: {e}")
+        raise
     
     # Initialize agent sandbox
     from app.services.sandbox import SandboxManager
