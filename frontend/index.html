@@ -370,10 +370,8 @@
         }
         
         .card h2 {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--neon-blue);
             margin-bottom: 25px;
             font-size: 2em;
             font-weight: 700;
@@ -774,21 +772,24 @@
         }
         
         .alert-success {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border-left: 4px solid var(--success);
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+            text-shadow: 0 0 5px var(--success);
         }
         
         .alert-error {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border-left: 4px solid var(--danger);
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            text-shadow: 0 0 5px var(--danger);
         }
         
         .alert-info {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af;
-            border-left: 4px solid #3b82f6;
+            background: rgba(0, 217, 255, 0.2);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
         }
         
         /* Loading */
