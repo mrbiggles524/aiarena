@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -45,7 +46,7 @@ class UserResponse(BaseModel):
     id: int
     email: str
     username: str
-    full_name: str = None
+    full_name: Optional[str] = None
     roles: str
     balance: float = 0.0
     reputation_score: float = 0.0
