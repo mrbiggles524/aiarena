@@ -45,10 +45,19 @@ async def lifespan(app: FastAPI):
         db_type = "PostgreSQL" if settings.DATABASE_URL.startswith("postgresql") else "SQLite"
         logger.info(f"✅ Database tables verified/created using {db_type} (existing data preserved)")
         
-        # Warn if using SQLite on Railway (data won't persist)
-        if os.getenv("RAILWAY_ENVIRONMENT") and settings.DATABASE_URL.startswith("sqlite"):
-            logger.warning("⚠️  WARNING: Using SQLite on Railway - data will be lost on deployments!")
-            logger.warning("⚠️  Add PostgreSQL database in Railway to persist data.")
+        # CRITICAL: Warn if using SQLite on Railway (data won't persist)
+        if (os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RAILWAY")) and settings.DATABASE_URL.startswith("sqlite"):
+            logger.error("=" * 60)
+            logger.error("🚨 CRITICAL: Using SQLite on Railway - DATA WILL BE LOST!")
+            logger.error("=" * 60)
+            logger.error("SOLUTION:")
+            logger.error("1. Go to Railway Dashboard → Your Project")
+            logger.error("2. Click on 'web' service → 'Variables' tab")
+            logger.error("3. Add DATABASE_URL from PostgreSQL service")
+            logger.error("4. Or ensure PostgreSQL service is linked to web service")
+            logger.error("=" * 60)
+            logger.error(f"Current DATABASE_URL: {settings.DATABASE_URL[:50]}...")
+            logger.error("Expected: postgresql://... (from Railway PostgreSQL service)")
     except Exception as e:
         logger.error(f"❌ Database initialization error: {e}")
         # Don't crash - allow app to start even if DB init fails
