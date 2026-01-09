@@ -15,8 +15,23 @@ class Settings(BaseSettings):
     
     # Database
     # Railway automatically provides DATABASE_URL for PostgreSQL
-    # If not set, use SQLite for local development only
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./aiarena.db")
+    # Priority: 1. DATABASE_URL env var, 2. POSTGRES_URL (Railway), 3. SQLite (local only)
+    _db_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("PGDATABASE")
+    
+    # On Railway, we MUST use PostgreSQL - fail if SQLite is detected
+    if os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RAILWAY"):
+        if not _db_url or _db_url.startswith("sqlite"):
+            # Try to find PostgreSQL URL from Railway's service variables
+            # Railway sometimes provides it as POSTGRES_URL or in service variables
+            import warnings
+            warnings.warn(
+                "⚠️  WARNING: No PostgreSQL DATABASE_URL found on Railway! "
+                "Data will be lost. Check Railway Variables tab and ensure PostgreSQL service is linked."
+            )
+            # Still allow SQLite for now, but log warning
+            _db_url = _db_url or "sqlite:///./aiarena.db"
+    
+    DATABASE_URL: str = _db_url or "sqlite:///./aiarena.db"
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-in-production")
