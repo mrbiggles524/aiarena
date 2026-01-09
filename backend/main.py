@@ -213,12 +213,64 @@ async def serve_app():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {
+    """Health check endpoint with detailed database info"""
+    from app.database import engine
+    from sqlalchemy import text
+    
+    db_info = {
         "status": "healthy",
-        "database": "connected",
+        "database": "unknown",
+        "database_type": "unknown",
+        "database_connected": False,
+        "tables_exist": False,
         "sandbox": "ready"
     }
+    
+    try:
+        # Check database connection and type
+        db_url = settings.DATABASE_URL
+        if db_url.startswith("postgresql"):
+            db_info["database_type"] = "PostgreSQL"
+            db_info["database"] = "PostgreSQL (persistent)"
+        elif db_url.startswith("sqlite"):
+            db_info["database_type"] = "SQLite"
+            db_info["database"] = "SQLite (NOT persistent on Railway!)"
+        else:
+            db_info["database_type"] = "Unknown"
+            db_info["database"] = f"Unknown: {db_url[:30]}..."
+        
+        # Test connection
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+            db_info["database_connected"] = True
+            
+            # Check if tables exist
+            from sqlalchemy import inspect
+            inspector = inspect(engine)
+            tables = inspector.get_table_names()
+            db_info["tables_exist"] = len(tables) > 0
+            db_info["table_count"] = len(tables)
+            
+            # Check data counts
+            if 'users' in tables:
+                result = conn.execute(text("SELECT COUNT(*) FROM users"))
+                db_info["user_count"] = result.fetchone()[0]
+            
+            if 'bounties' in tables:
+                result = conn.execute(text("SELECT COUNT(*) FROM bounties"))
+                db_info["bounty_count"] = result.fetchone()[0]
+        
+        # Warn if using SQLite on Railway
+        if os.getenv("RAILWAY_ENVIRONMENT") and db_url.startswith("sqlite"):
+            db_info["warning"] = "Using SQLite on Railway - data will be lost! Add PostgreSQL database."
+            db_info["database"] = "SQLite (⚠️ NOT PERSISTENT)"
+        
+    except Exception as e:
+        db_info["status"] = "error"
+        db_info["database"] = f"Connection failed: {str(e)[:100]}"
+        db_info["database_connected"] = False
+    
+    return db_info
 
 
 if __name__ == "__main__":
