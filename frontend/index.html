@@ -711,10 +711,8 @@
         }
         
         .modal-header h2 {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
             font-size: 2em;
             font-weight: 700;
         }
@@ -724,7 +722,7 @@
             border: none;
             font-size: 2.2em;
             cursor: pointer;
-            color: #64748b;
+            color: #88ccff;
             line-height: 1;
             transition: all 0.3s;
             width: 40px;
@@ -737,8 +735,9 @@
         
         .close-btn:hover {
             color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(255, 51, 102, 0.2);
             transform: rotate(90deg);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
         }
         
         /* Alerts */
@@ -918,23 +917,23 @@
                 📊 Activity
             </button>
             <!-- Stats Dashboard -->
-            <div class="card" style="margin-bottom: 25px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border: 2px solid rgba(99, 102, 241, 0.2);">
+            <div class="card" style="margin-bottom: 25px; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;" id="bounty-stats">
-                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <div style="font-size: 2.5em; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="stat-total">0</div>
-                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Total Bounties</div>
+                    <div style="text-align: center; padding: 20px; background: rgba(0, 217, 255, 0.1); border-radius: 12px; border: 1px solid rgba(0, 217, 255, 0.3); box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);" id="stat-total">0</div>
+                        <div style="color: #88ccff; font-weight: 600; margin-top: 5px;">Total Bounties</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <div style="font-size: 2.5em; font-weight: 800; color: var(--success);" id="stat-open">0</div>
-                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Open</div>
+                    <div style="text-align: center; padding: 20px; background: rgba(0, 255, 136, 0.1); border-radius: 12px; border: 1px solid rgba(0, 255, 136, 0.3); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--success); text-shadow: 0 0 10px var(--success);" id="stat-open">0</div>
+                        <div style="color: #88ffaa; font-weight: 600; margin-top: 5px;">Open</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <div style="font-size: 2.5em; font-weight: 800; color: var(--warning);" id="stat-progress">0</div>
-                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">In Progress</div>
+                    <div style="text-align: center; padding: 20px; background: rgba(255, 170, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 170, 0, 0.3); box-shadow: 0 0 15px rgba(255, 170, 0, 0.2);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--warning); text-shadow: 0 0 10px var(--warning);" id="stat-progress">0</div>
+                        <div style="color: #ffcc88; font-weight: 600; margin-top: 5px;">In Progress</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <div style="font-size: 2.5em; font-weight: 800; color: var(--primary);" id="stat-total-budget">$0</div>
-                        <div style="color: #64748b; font-weight: 600; margin-top: 5px;">Total Value</div>
+                    <div style="text-align: center; padding: 20px; background: rgba(0, 102, 255, 0.1); border-radius: 12px; border: 1px solid rgba(0, 102, 255, 0.3); box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);">
+                        <div style="font-size: 2.5em; font-weight: 800; color: var(--secondary); text-shadow: 0 0 10px var(--secondary);" id="stat-total-budget">$0</div>
+                        <div style="color: #88aaff; font-weight: 600; margin-top: 5px;">Total Value</div>
                     </div>
                 </div>
             </div>
