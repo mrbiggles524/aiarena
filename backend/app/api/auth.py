@@ -221,29 +221,37 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
     try:
-        # Refresh user from database to ensure all fields are loaded
-        db.refresh(current_user)
-        
-        # Ensure all required fields have defaults
-        user_data = {
-            "id": current_user.id,
-            "email": current_user.email or "",
-            "username": current_user.username or "",
-            "full_name": current_user.full_name,
-            "roles": current_user.roles or "spectator",
-            "balance": float(current_user.balance) if current_user.balance is not None else 0.0,
-            "reputation_score": float(current_user.reputation_score) if current_user.reputation_score is not None else 0.0,
-            "is_premium": bool(current_user.is_premium) if current_user.is_premium is not None else False
-        }
-        
-        return UserResponse(**user_data)
+        # Safely extract all fields with defaults
+        return UserResponse(
+            id=current_user.id,
+            email=str(current_user.email) if current_user.email else "",
+            username=str(current_user.username) if current_user.username else "",
+            full_name=str(current_user.full_name) if current_user.full_name else None,
+            roles=str(current_user.roles) if current_user.roles else "spectator",
+            balance=float(current_user.balance) if hasattr(current_user, 'balance') and current_user.balance is not None else 0.0,
+            reputation_score=float(current_user.reputation_score) if hasattr(current_user, 'reputation_score') and current_user.reputation_score is not None else 0.0,
+            is_premium=bool(current_user.is_premium) if hasattr(current_user, 'is_premium') and current_user.is_premium is not None else False
+        )
     except Exception as e:
         from loguru import logger
         logger.error(f"Error serializing user {current_user.id if current_user else 'unknown'}: {e}")
         import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Error retrieving user info: {str(e)}")
+        logger.error(traceback.format_exc())
+        # Return a minimal response instead of crashing
+        try:
+            return UserResponse(
+                id=current_user.id,
+                email=str(current_user.email) if current_user.email else "",
+                username=str(current_user.username) if current_user.username else "",
+                full_name=None,
+                roles="spectator",
+                balance=0.0,
+                reputation_score=0.0,
+                is_premium=False
+            )
+        except:
+            raise HTTPException(status_code=500, detail=f"Error retrieving user info: {str(e)}")
 
