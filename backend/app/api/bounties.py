@@ -27,6 +27,9 @@ class BountyCreate(BaseModel):
     requirements: dict = None  # JSON object
     expires_at: datetime = None
     tags: str = None
+    payment_method: str = "fiat"  # "fiat" or "crypto"
+    crypto_type: str = None  # "BTC", "ETH", "USDT", etc.
+    crypto_wallet_address: str = None  # Wallet address for receiving crypto payments
 
 
 class BountyResponse(BaseModel):
@@ -41,6 +44,10 @@ class BountyResponse(BaseModel):
     status: str
     poster_id: int
     created_at: datetime
+    payment_method: str = "fiat"
+    crypto_type: str = None
+    crypto_wallet_address: str = None
+    crypto_amount: float = None
     
     class Config:
         from_attributes = True
@@ -61,6 +68,22 @@ async def create_bounty(
     platform_fee = bounty_data.budget * (settings.PLATFORM_FEE_PERCENTAGE / 100)
     agent_reward = bounty_data.budget * (settings.AGENT_REWARD_PERCENTAGE / 100)
     
+    # Handle crypto payments
+    crypto_amount = None
+    if bounty_data.payment_method == "crypto" and bounty_data.crypto_type:
+        # Convert USD to crypto (using approximate rates - in production, use real-time API)
+        crypto_rates = {
+            "BTC": 45000.0,  # Approximate BTC price in USD
+            "ETH": 2500.0,   # Approximate ETH price in USD
+            "USDT": 1.0,     # Stablecoin
+            "USDC": 1.0,     # Stablecoin
+            "SOL": 100.0,    # Approximate SOL price in USD
+            "MATIC": 0.8,    # Approximate MATIC price in USD
+        }
+        rate = crypto_rates.get(bounty_data.crypto_type.upper(), 1.0)
+        if rate > 0:
+            crypto_amount = bounty_data.budget / rate
+    
     # Create bounty
     import json
     bounty = Bounty(
@@ -75,7 +98,11 @@ async def create_bounty(
         poster_id=current_user.id,
         status=BountyStatus.DRAFT,
         expires_at=bounty_data.expires_at,
-        tags=bounty_data.tags
+        tags=bounty_data.tags,
+        payment_method=bounty_data.payment_method or "fiat",
+        crypto_type=bounty_data.crypto_type,
+        crypto_wallet_address=bounty_data.crypto_wallet_address,
+        crypto_amount=crypto_amount
     )
     
     db.add(bounty)

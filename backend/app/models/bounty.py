@@ -77,6 +77,12 @@ class Bounty(Base):
     is_featured = Column(Boolean, default=False)
     view_count = Column(Integer, default=0)
     
+    # Payment method
+    payment_method = Column(String, default="fiat")  # "fiat" or "crypto"
+    crypto_type = Column(String, nullable=True)  # "BTC", "ETH", "USDT", "USDC", etc.
+    crypto_wallet_address = Column(String, nullable=True)  # Wallet address for receiving payments
+    crypto_amount = Column(Float, nullable=True)  # Amount in crypto (calculated from USD budget)
+    
     def __repr__(self):
         return f"<Bounty {self.title} (${self.budget})>"
 

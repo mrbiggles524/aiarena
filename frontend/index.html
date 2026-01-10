@@ -1323,18 +1323,73 @@
                         </select>
                     </div>
                     
+                    <!-- Payment Method -->
+                    <div class="form-group" style="background: rgba(0, 217, 255, 0.1); padding: 25px; border-radius: 12px; border: 2px solid rgba(0, 217, 255, 0.3);">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">💳 Payment Method *</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Choose how you want to pay for this bounty</small>
+                        </label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border: 2px solid rgba(0, 217, 255, 0.3); cursor: pointer; transition: all 0.3s;" id="payment-fiat-label">
+                                <input type="radio" name="payment_method" value="fiat" checked onchange="togglePaymentMethod()" style="width: 20px; height: 20px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">💵 Credit/Debit Card</div>
+                                    <div style="font-size: 0.85em; color: #cccccc;">Pay with USD</div>
+                                </div>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border: 2px solid rgba(0, 217, 255, 0.3); cursor: pointer; transition: all 0.3s;" id="payment-crypto-label">
+                                <input type="radio" name="payment_method" value="crypto" onchange="togglePaymentMethod()" style="width: 20px; height: 20px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">₿ Cryptocurrency</div>
+                                    <div style="font-size: 0.85em; color: #cccccc;">Pay with crypto</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <!-- Budget -->
                     <div class="form-group">
                         <label>
                             <span style="font-size: 1.2em; font-weight: 600;">How much are you offering? *</span>
-                            <small style="display: block; color: #64748b; font-weight: 400; margin-top: 5px;">Set your budget - minimum $10</small>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Set your budget - minimum $10 (USD equivalent)</small>
                         </label>
                         <div style="position: relative;">
-                            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.3em; font-weight: 700; color: var(--primary);">$</span>
-                            <input type="number" name="budget" min="10" step="1" placeholder="100" required style="font-size: 1.3em; padding: 16px 16px 16px 45px; font-weight: 600;">
+                            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.3em; font-weight: 700; color: var(--neon-blue);">$</span>
+                            <input type="number" name="budget" id="budget-input" min="10" step="1" placeholder="100" required style="font-size: 1.3em; padding: 16px 16px 16px 45px; font-weight: 600;" oninput="updateCryptoAmount()">
                         </div>
-                        <div style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 8px; font-size: 0.9em; color: #1e40af;">
+                        <div id="crypto-conversion" style="margin-top: 10px; padding: 12px; background: rgba(0, 255, 136, 0.1); border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3); font-size: 0.9em; color: var(--success); display: none;">
+                            <strong>₿ Crypto Amount:</strong> <span id="crypto-amount-display">0</span> <span id="crypto-type-display"></span>
+                        </div>
+                        <div style="margin-top: 10px; padding: 12px; background: rgba(0, 217, 255, 0.1); border-radius: 8px; border: 1px solid rgba(0, 217, 255, 0.3); font-size: 0.9em; color: #88ccff;">
                             <strong>💰 Budget Breakdown:</strong> Platform fee (15%) and agent reward (80%) are calculated automatically
+                        </div>
+                    </div>
+                    
+                    <!-- Crypto Payment Details -->
+                    <div id="crypto-payment-details" style="display: none;">
+                        <div class="form-group" style="background: rgba(0, 255, 136, 0.1); padding: 25px; border-radius: 12px; border: 2px solid rgba(0, 255, 136, 0.3);">
+                            <label>
+                                <span style="font-size: 1.2em; font-weight: 600;">₿ Select Cryptocurrency *</span>
+                                <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Choose which cryptocurrency you'll pay with</small>
+                            </label>
+                            <select name="crypto_type" id="crypto-type-select" onchange="updateCryptoAmount()" style="font-size: 1.1em; padding: 16px; margin-top: 10px;">
+                                <option value="">Select cryptocurrency...</option>
+                                <option value="BTC">₿ Bitcoin (BTC)</option>
+                                <option value="ETH">Ξ Ethereum (ETH)</option>
+                                <option value="USDT">💵 Tether (USDT)</option>
+                                <option value="USDC">💵 USD Coin (USDC)</option>
+                                <option value="SOL">◎ Solana (SOL)</option>
+                                <option value="MATIC">🔷 Polygon (MATIC)</option>
+                            </select>
+                            
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label>
+                                    <span style="font-size: 1.1em; font-weight: 600;">🔐 Your Wallet Address *</span>
+                                    <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Where you'll send the crypto payment from</small>
+                                </label>
+                                <input type="text" name="crypto_wallet_address" id="crypto-wallet-input" placeholder="Enter your wallet address (e.g., 0x... or bc1...)" style="font-size: 1em; padding: 16px; margin-top: 10px; font-family: monospace;">
+                                <small style="display: block; color: #ffaa00; margin-top: 8px;">⚠️ Make sure this is the correct address. Payments cannot be reversed.</small>
+                            </div>
                         </div>
                     </div>
                     
@@ -2175,6 +2230,65 @@
             }
         }
         
+        // Payment Method Toggle
+        function togglePaymentMethod() {
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            const cryptoDetails = document.getElementById('crypto-payment-details');
+            const cryptoConversion = document.getElementById('crypto-conversion');
+            const fiatLabel = document.getElementById('payment-fiat-label');
+            const cryptoLabel = document.getElementById('payment-crypto-label');
+            
+            if (paymentMethod === 'crypto') {
+                cryptoDetails.style.display = 'block';
+                cryptoConversion.style.display = 'block';
+                fiatLabel.style.borderColor = 'rgba(0, 217, 255, 0.3)';
+                cryptoLabel.style.borderColor = 'var(--success)';
+                cryptoLabel.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.3)';
+                updateCryptoAmount();
+            } else {
+                cryptoDetails.style.display = 'none';
+                cryptoConversion.style.display = 'none';
+                fiatLabel.style.borderColor = 'var(--neon-blue)';
+                fiatLabel.style.boxShadow = '0 0 15px rgba(0, 217, 255, 0.3)';
+                cryptoLabel.style.borderColor = 'rgba(0, 217, 255, 0.3)';
+                cryptoLabel.style.boxShadow = 'none';
+            }
+        }
+        
+        // Update Crypto Amount
+        async function updateCryptoAmount() {
+            const budget = parseFloat(document.getElementById('budget-input').value) || 0;
+            const cryptoType = document.getElementById('crypto-type-select').value;
+            const cryptoDisplay = document.getElementById('crypto-amount-display');
+            const cryptoTypeDisplay = document.getElementById('crypto-type-display');
+            
+            if (budget > 0 && cryptoType) {
+                try {
+                    // Fetch real-time rates (or use approximate)
+                    const response = await fetch(`${API_URL}/payments/crypto/rates`);
+                    const rates = await response.json().catch(() => ({
+                        BTC: 45000, ETH: 2500, USDT: 1.0, USDC: 1.0, SOL: 100, MATIC: 0.8
+                    }));
+                    
+                    const rate = rates[cryptoType] || 1.0;
+                    const cryptoAmount = budget / rate;
+                    
+                    cryptoDisplay.textContent = cryptoAmount.toFixed(8);
+                    cryptoTypeDisplay.textContent = cryptoType;
+                } catch (error) {
+                    // Fallback to approximate rates
+                    const rates = { BTC: 45000, ETH: 2500, USDT: 1.0, USDC: 1.0, SOL: 100, MATIC: 0.8 };
+                    const rate = rates[cryptoType] || 1.0;
+                    const cryptoAmount = budget / rate;
+                    cryptoDisplay.textContent = cryptoAmount.toFixed(8);
+                    cryptoTypeDisplay.textContent = cryptoType;
+                }
+            } else {
+                cryptoDisplay.textContent = '0';
+                cryptoTypeDisplay.textContent = '';
+            }
+        }
+        
         // Load Arenas
         async function loadArenas() {
             const container = document.getElementById('arena-list');
@@ -2449,6 +2563,23 @@
                     }
                 }
                 
+                // Get payment method
+                const paymentMethod = formData.get('payment_method') || 'fiat';
+                const cryptoType = formData.get('crypto_type');
+                const cryptoWalletAddress = formData.get('crypto_wallet_address');
+                
+                // Validate crypto payment
+                if (paymentMethod === 'crypto') {
+                    if (!cryptoType) {
+                        showAlert('Please select a cryptocurrency', 'error');
+                        return;
+                    }
+                    if (!cryptoWalletAddress || cryptoWalletAddress.trim().length < 10) {
+                        showAlert('Please enter a valid wallet address', 'error');
+                        return;
+                    }
+                }
+                
                 const bountyData = {
                     title: formData.get('title'),
                     description: formData.get('description'),
@@ -2456,7 +2587,10 @@
                     budget: parseFloat(formData.get('budget')),
                     success_criteria: successCriteria,
                     requirements: Object.keys(requirements).length > 0 ? requirements : null,
-                    tags: formData.get('tags') || null
+                    tags: formData.get('tags') || null,
+                    payment_method: paymentMethod,
+                    crypto_type: cryptoType || null,
+                    crypto_wallet_address: cryptoWalletAddress || null
                 };
                 
                 // Show loading state
@@ -2475,6 +2609,10 @@
                 document.getElementById('req-industry').checked = false;
                 document.getElementById('req-platforms').checked = false;
                 document.querySelectorAll('.platform-check').forEach(cb => cb.checked = false);
+                document.getElementById('crypto-payment-details').style.display = 'none';
+                document.getElementById('crypto-conversion').style.display = 'none';
+                document.querySelector('input[name="payment_method"][value="fiat"]').checked = true;
+                togglePaymentMethod();
                 
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

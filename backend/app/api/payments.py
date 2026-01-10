@@ -64,3 +64,56 @@ async def stripe_webhook(request: dict):
     # Verify signature, process events, update user balances
     return {"status": "ok"}
 
+
+class CryptoPaymentCreate(BaseModel):
+    bounty_id: int
+    crypto_type: str  # "BTC", "ETH", "USDT", etc.
+    transaction_hash: str  # Blockchain transaction hash
+    amount: float  # Amount in crypto
+    wallet_address: str  # Sender wallet address
+
+
+@router.post("/crypto/verify")
+async def verify_crypto_payment(
+    payment_data: CryptoPaymentCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Verify a cryptocurrency payment for a bounty"""
+    from app.models.bounty import Bounty
+    
+    bounty = db.query(Bounty).filter(Bounty.id == payment_data.bounty_id).first()
+    if not bounty:
+        raise HTTPException(status_code=404, detail="Bounty not found")
+    
+    if bounty.poster_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # In production, verify transaction on blockchain
+    # For now, we'll just store the payment info
+    # You would integrate with blockchain APIs like:
+    # - Bitcoin: BlockCypher, Blockchain.info
+    # - Ethereum: Etherscan, Infura
+    # - Solana: Solscan, Helius
+    
+    return {
+        "status": "pending_verification",
+        "message": "Payment submitted. Verification in progress.",
+        "transaction_hash": payment_data.transaction_hash,
+        "note": "In production, this would verify the transaction on the blockchain"
+    }
+
+
+@router.get("/crypto/rates")
+async def get_crypto_rates():
+    """Get current cryptocurrency exchange rates"""
+    # In production, fetch from CoinGecko, CoinMarketCap, or similar API
+    return {
+        "BTC": 45000.0,  # Approximate - use real API in production
+        "ETH": 2500.0,
+        "USDT": 1.0,
+        "USDC": 1.0,
+        "SOL": 100.0,
+        "MATIC": 0.8,
+        "note": "These are approximate rates. Use real-time API in production."
+    }
