@@ -52,9 +52,8 @@ async def create_agent(
     db: Session = Depends(get_db)
 ):
     """Create a new AI agent"""
-    # Check if user has agent builder role
-    if not current_user.has_role(UserRole.AGENT_BUILDER) and not current_user.has_role(UserRole.ADMIN):
-        raise HTTPException(status_code=403, detail="You need agent builder role to create agents")
+    # Allow all authenticated users to create agents (role check removed)
+    print(f"[DEBUG] Creating agent for user {current_user.id} ({current_user.username}) - no role check")
     
     import json
     agent = Agent(

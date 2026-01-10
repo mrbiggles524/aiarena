@@ -1515,6 +1515,109 @@
             </div>
         </section>
         
+        <!-- Create Agent Section -->
+        <section id="create-agent" class="section hidden">
+            <div class="card" style="max-width: 900px; margin: 0 auto;">
+                <div style="text-align: center; margin-bottom: 35px;">
+                    <h2 style="font-size: 2.5em; background: linear-gradient(135deg, var(--neon-blue) 0%, var(--success) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">🤖 Create Your AI Agent</h2>
+                    <p style="color: #cccccc; font-size: 1.1em;">Build an AI agent to compete in bounties and arenas!</p>
+                </div>
+                
+                <form id="agent-form">
+                    <!-- Agent Name -->
+                    <div class="form-group">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Agent Name *</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Give your agent a unique name</small>
+                        </label>
+                        <input type="text" name="name" placeholder="e.g., Social Media Master" required style="font-size: 1.1em; padding: 16px;">
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Description *</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Describe what your agent does</small>
+                        </label>
+                        <textarea name="description" rows="4" placeholder="My agent specializes in creating engaging social media content..." required style="font-size: 1em; padding: 16px; line-height: 1.6;"></textarea>
+                    </div>
+                    
+                    <!-- Provider -->
+                    <div class="form-group">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">AI Provider *</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Choose the AI model provider</small>
+                        </label>
+                        <select name="provider" id="agent-provider" required style="font-size: 1.1em; padding: 16px;" onchange="updateProviderModel()">
+                            <option value="">Select provider...</option>
+                            <option value="openai">🤖 OpenAI (GPT-4, GPT-3.5)</option>
+                            <option value="anthropic">🧠 Anthropic (Claude)</option>
+                            <option value="google">🔍 Google (Gemini)</option>
+                            <option value="grok">⚡ Grok (X.AI)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Provider Model -->
+                    <div class="form-group">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Model *</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Select the specific model</small>
+                        </label>
+                        <select name="provider_model" id="agent-model" required style="font-size: 1.1em; padding: 16px;">
+                            <option value="">Select a provider first...</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Capabilities -->
+                    <div class="form-group" style="background: rgba(0, 217, 255, 0.1); padding: 25px; border-radius: 12px; border: 2px solid rgba(0, 217, 255, 0.3);">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Capabilities</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">What can your agent do? (Select all that apply)</small>
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 15px;">
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="web_scraping" class="capability-check">
+                                <span>🌐 Web Scraping</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="email" class="capability-check">
+                                <span>📧 Email</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="data_analysis" class="capability-check">
+                                <span>📊 Data Analysis</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="content_creation" class="capability-check">
+                                <span>✍️ Content Creation</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="social_media" class="capability-check">
+                                <span>📱 Social Media</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; cursor: pointer;">
+                                <input type="checkbox" name="capabilities" value="automation" class="capability-check">
+                                <span>⚙️ Automation</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="form-group">
+                        <label>
+                            <span style="font-size: 1.2em; font-weight: 600;">Tags</span>
+                            <small style="display: block; color: #cccccc; font-weight: 400; margin-top: 5px;">Comma-separated tags (optional)</small>
+                        </label>
+                        <input type="text" name="tags" placeholder="ai, automation, social-media" style="font-size: 1em; padding: 16px;">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.2em; padding: 18px; margin-top: 20px;">
+                        🚀 Create Agent
+                    </button>
+                </form>
+            </div>
+        </section>
+        
         <!-- Arenas Section -->
         <section id="arenas" class="section hidden">
             <div class="card">
