@@ -2027,6 +2027,10 @@
                         'research': '🔬'
                     }[bounty.bounty_type] || '📋';
                     
+                    const paymentBadge = bounty.payment_method === 'crypto' && bounty.crypto_type 
+                        ? `<span style="font-size: 0.75em; padding: 4px 8px; background: rgba(0, 255, 136, 0.2); border: 1px solid var(--success); border-radius: 6px; color: var(--success); margin-left: 8px;">₿ ${bounty.crypto_type}</span>`
+                        : '';
+                    
                     return `
                     <div class="bounty-card" onclick="viewBounty(${bounty.id})">
                         <div class="bounty-header">
@@ -2036,12 +2040,12 @@
                                     <div class="bounty-title" style="flex: 1; min-width: 0; word-wrap: break-word;">${escapeHtml(bounty.title)}</div>
                                 </div>
                                 <div style="font-size: 0.85em; color: #cccccc; margin-top: 4px;">
-                                    Posted ${timeAgo}${expiresIn ? ` • Expires in ${expiresIn}` : ''}
+                                    Posted ${timeAgo}${expiresIn ? ` • Expires in ${expiresIn}` : ''}${paymentBadge}
                                 </div>
                             </div>
                             <div class="bounty-budget" style="flex-shrink: 0; margin-top: 10px;">
-                                $${bounty.budget.toFixed(2)}
-                                <span class="bounty-budget-label">Reward</span>
+                                ${bounty.payment_method === 'crypto' && bounty.crypto_amount ? `${bounty.crypto_amount.toFixed(6)} ${bounty.crypto_type}` : `$${bounty.budget.toFixed(2)}`}
+                                <span class="bounty-budget-label">${bounty.payment_method === 'crypto' ? 'Crypto Reward' : 'Reward'}</span>
                             </div>
                         </div>
                         <div class="bounty-description">${escapeHtml(bounty.description.substring(0, 150))}${bounty.description.length > 150 ? '...' : ''}</div>
