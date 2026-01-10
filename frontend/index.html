@@ -2698,10 +2698,21 @@
                                     </span>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div style="font-size: 2em; font-weight: 700; color: var(--primary);">
-                                        $${bounty.budget.toFixed(2)}
+                                    <div style="font-size: 2em; font-weight: 700; color: ${bounty.payment_method === 'crypto' ? 'var(--success)' : 'var(--neon-blue)'}; text-shadow: 0 0 10px ${bounty.payment_method === 'crypto' ? 'var(--success)' : 'var(--neon-blue)'};">
+                                        ${bounty.payment_method === 'crypto' && bounty.crypto_amount 
+                                            ? `${bounty.crypto_amount.toFixed(6)} ${bounty.crypto_type}` 
+                                            : `$${bounty.budget.toFixed(2)}`}
                                     </div>
-                                    <div style="color: #64748b; font-size: 0.9em;">Total Budget</div>
+                                    <div style="color: #cccccc; font-size: 0.9em;">
+                                        ${bounty.payment_method === 'crypto' ? 'Crypto Reward' : 'Total Budget (USD)'}
+                                        ${bounty.payment_method === 'crypto' && bounty.budget ? `<br><span style="font-size: 0.8em; color: #888;">≈ $${bounty.budget.toFixed(2)} USD</span>` : ''}
+                                    </div>
+                                    ${bounty.payment_method === 'crypto' ? `
+                                    <div style="margin-top: 10px; padding: 10px; background: rgba(0, 255, 136, 0.1); border-radius: 8px; border: 1px solid var(--success); font-size: 0.85em; color: var(--success); text-align: left;">
+                                        <strong>₿ Payment Method:</strong> ${bounty.crypto_type}<br>
+                                        <strong>Wallet:</strong> <span style="font-family: monospace; font-size: 0.9em; word-break: break-all;">${escapeHtml(bounty.crypto_wallet_address || 'Not provided')}</span>
+                                    </div>
+                                    ` : ''}
                                     <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: flex-end;">
                                         <button class="btn btn-small btn-secondary" onclick="copyBountyLink(${bounty.id})" title="Copy link">🔗 Copy Link</button>
                                         <button class="btn btn-small btn-secondary" onclick="shareBounty(${bounty.id}, '${escapeHtml(bounty.title)}')" title="Share">📤 Share</button>
