@@ -44,10 +44,10 @@ class BountyResponse(BaseModel):
     status: str
     poster_id: int
     created_at: datetime
-    payment_method: str = "fiat"
-    crypto_type: str = None
-    crypto_wallet_address: str = None
-    crypto_amount: float = None
+    payment_method: Optional[str] = "fiat"
+    crypto_type: Optional[str] = None
+    crypto_wallet_address: Optional[str] = None
+    crypto_amount: Optional[float] = None
     
     class Config:
         from_attributes = True
@@ -122,31 +122,85 @@ async def list_bounties(
     db: Session = Depends(get_db)
 ):
     """List all bounties with filters"""
-    query = db.query(Bounty)
-    
-    if status:
-        query = query.filter(Bounty.status == status)
-    if bounty_type:
-        query = query.filter(Bounty.bounty_type == bounty_type)
-    if min_budget:
-        query = query.filter(Bounty.budget >= min_budget)
-    
-    bounties = query.order_by(desc(Bounty.created_at)).offset(offset).limit(limit).all()
-    return bounties
+    try:
+        query = db.query(Bounty)
+        
+        if status:
+            query = query.filter(Bounty.status == status)
+        if bounty_type:
+            query = query.filter(Bounty.bounty_type == bounty_type)
+        if min_budget:
+            query = query.filter(Bounty.budget >= min_budget)
+        
+        bounties = query.order_by(desc(Bounty.created_at)).offset(offset).limit(limit).all()
+        
+        # Ensure all bounties have default values for crypto fields if they don't exist
+        result = []
+        for bounty in bounties:
+            bounty_dict = {
+                "id": bounty.id,
+                "title": bounty.title,
+                "description": bounty.description,
+                "bounty_type": bounty.bounty_type.value if hasattr(bounty.bounty_type, 'value') else str(bounty.bounty_type),
+                "budget": bounty.budget,
+                "platform_fee": bounty.platform_fee,
+                "agent_reward": bounty.agent_reward,
+                "success_criteria": bounty.success_criteria,
+                "status": bounty.status.value if hasattr(bounty.status, 'value') else str(bounty.status),
+                "poster_id": bounty.poster_id,
+                "created_at": bounty.created_at,
+                "payment_method": getattr(bounty, 'payment_method', 'fiat') or 'fiat',
+                "crypto_type": getattr(bounty, 'crypto_type', None),
+                "crypto_wallet_address": getattr(bounty, 'crypto_wallet_address', None),
+                "crypto_amount": getattr(bounty, 'crypto_amount', None)
+            }
+            result.append(BountyResponse(**bounty_dict))
+        
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error loading bounties: {str(e)}")
 
 
 @router.get("/{bounty_id}", response_model=BountyResponse)
 async def get_bounty(bounty_id: int, db: Session = Depends(get_db)):
     """Get bounty by ID"""
-    bounty = db.query(Bounty).filter(Bounty.id == bounty_id).first()
-    if not bounty:
-        raise HTTPException(status_code=404, detail="Bounty not found")
-    
-    # Increment view count
-    bounty.view_count += 1
-    db.commit()
-    
-    return bounty
+    try:
+        bounty = db.query(Bounty).filter(Bounty.id == bounty_id).first()
+        if not bounty:
+            raise HTTPException(status_code=404, detail="Bounty not found")
+        
+        # Increment view count
+        bounty.view_count += 1
+        db.commit()
+        
+        # Ensure all fields have default values
+        bounty_dict = {
+            "id": bounty.id,
+            "title": bounty.title,
+            "description": bounty.description,
+            "bounty_type": bounty.bounty_type.value if hasattr(bounty.bounty_type, 'value') else str(bounty.bounty_type),
+            "budget": bounty.budget,
+            "platform_fee": bounty.platform_fee,
+            "agent_reward": bounty.agent_reward,
+            "success_criteria": bounty.success_criteria,
+            "status": bounty.status.value if hasattr(bounty.status, 'value') else str(bounty.status),
+            "poster_id": bounty.poster_id,
+            "created_at": bounty.created_at,
+            "payment_method": getattr(bounty, 'payment_method', 'fiat') or 'fiat',
+            "crypto_type": getattr(bounty, 'crypto_type', None),
+            "crypto_wallet_address": getattr(bounty, 'crypto_wallet_address', None),
+            "crypto_amount": getattr(bounty, 'crypto_amount', None)
+        }
+        
+        return BountyResponse(**bounty_dict)
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error loading bounty: {str(e)}")
 
 
 @router.put("/{bounty_id}/publish", response_model=BountyResponse)
