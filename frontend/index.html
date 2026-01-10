@@ -2734,6 +2734,106 @@
             }
         });
         
+        // Update Provider Model Options
+        function updateProviderModel() {
+            const provider = document.getElementById('agent-provider').value;
+            const modelSelect = document.getElementById('agent-model');
+            modelSelect.innerHTML = '<option value="">Select a model...</option>';
+            
+            const models = {
+                'openai': [
+                    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+                    { value: 'gpt-4', label: 'GPT-4' },
+                    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
+                ],
+                'anthropic': [
+                    { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
+                    { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
+                    { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' }
+                ],
+                'google': [
+                    { value: 'gemini-pro', label: 'Gemini Pro' },
+                    { value: 'gemini-ultra', label: 'Gemini Ultra' }
+                ],
+                'grok': [
+                    { value: 'grok-beta', label: 'Grok Beta' }
+                ]
+            };
+            
+            if (models[provider]) {
+                models[provider].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.value;
+                    option.textContent = model.label;
+                    modelSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Create Agent
+        document.getElementById('agent-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!authToken) {
+                showAlert('Please login to create an agent', 'error');
+                showModal('loginModal');
+                return;
+            }
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                // Get selected capabilities
+                const capabilities = Array.from(document.querySelectorAll('.capability-check:checked'))
+                    .map(cb => cb.value);
+                
+                // Build agent config
+                const config = {
+                    temperature: 0.7,
+                    max_tokens: 2000,
+                    tools: capabilities
+                };
+                
+                const agentData = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    provider: formData.get('provider'),
+                    provider_model: formData.get('provider_model'),
+                    config: config,
+                    capabilities: capabilities,
+                    tags: formData.get('tags') || null
+                };
+                
+                // Validate
+                if (!agentData.provider || !agentData.provider_model) {
+                    showAlert('Please select both a provider and model', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Creating Agent...';
+                submitBtn.disabled = true;
+                
+                await apiCall('/agents/', 'POST', agentData);
+                showAlert('🎉 Agent created successfully! It will be reviewed before activation.', 'success');
+                e.target.reset();
+                document.getElementById('agent-model').innerHTML = '<option value="">Select a provider first...</option>';
+                
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                showSection('agents');
+                loadAgents();
+            } catch (error) {
+                showAlert(`Error creating agent: ${error.message}`, 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '🚀 Create Agent';
+                submitBtn.disabled = false;
+            }
+        });
+        
         // Modal Functions
         function showModal(modalId) {
             document.getElementById(modalId).classList.add('active');
