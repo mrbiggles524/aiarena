@@ -48,33 +48,34 @@ async def lifespan(app: FastAPI):
         # Add crypto payment columns if they don't exist (migration)
         try:
             from sqlalchemy import text, inspect
-            with engine.connect() as conn:
-                inspector = inspect(engine)
-                columns = [col['name'] for col in inspector.get_columns('bounties')]
-                
-                columns_to_add = {
-                    'payment_method': "VARCHAR DEFAULT 'fiat'" if db_type == "PostgreSQL" else "TEXT DEFAULT 'fiat'",
-                    'crypto_type': "VARCHAR" if db_type == "PostgreSQL" else "TEXT",
-                    'crypto_wallet_address': "VARCHAR" if db_type == "PostgreSQL" else "TEXT",
-                    'crypto_amount': "FLOAT" if db_type == "PostgreSQL" else "REAL"
-                }
-                
-                for col_name, col_def in columns_to_add.items():
+            inspector = inspect(engine)
+            columns = [col['name'] for col in inspector.get_columns('bounties')]
+            
+            columns_to_add = {
+                'payment_method': ("VARCHAR DEFAULT 'fiat'", "TEXT DEFAULT 'fiat'"),
+                'crypto_type': ("VARCHAR", "TEXT"),
+                'crypto_wallet_address': ("VARCHAR", "TEXT"),
+                'crypto_amount': ("DOUBLE PRECISION", "REAL")
+            }
+            
+            with engine.begin() as conn:  # Use begin() for transaction management
+                for col_name, (pg_def, sqlite_def) in columns_to_add.items():
                     if col_name not in columns:
                         logger.info(f"🔄 Adding missing column: {col_name}")
                         if db_type == "PostgreSQL":
-                            if col_name == 'payment_method':
-                                sql = f"ALTER TABLE bounties ADD COLUMN {col_name} VARCHAR DEFAULT 'fiat'"
-                            else:
-                                sql = f"ALTER TABLE bounties ADD COLUMN {col_name} {col_def.split()[0]}"
+                            sql = f"ALTER TABLE bounties ADD COLUMN {col_name} {pg_def}"
                         else:
-                            sql = f"ALTER TABLE bounties ADD COLUMN {col_name} {col_def}"
+                            sql = f"ALTER TABLE bounties ADD COLUMN {col_name} {sqlite_def}"
                         
-                        conn.execute(text(sql))
-                        conn.commit()
-                        logger.info(f"✅ Added column: {col_name}")
+                        try:
+                            conn.execute(text(sql))
+                            logger.info(f"✅ Added column: {col_name}")
+                        except Exception as col_error:
+                            logger.warning(f"⚠️  Could not add column {col_name} (may already exist): {col_error}")
+                    else:
+                        logger.debug(f"⏭️  Column {col_name} already exists")
         except Exception as migration_error:
-            logger.warning(f"⚠️  Could not add crypto columns (may already exist): {migration_error}")
+            logger.warning(f"⚠️  Migration check failed (columns may already exist): {migration_error}")
         
         # CRITICAL: Warn if using SQLite on Railway (data won't persist)
         if (os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RAILWAY")) and settings.DATABASE_URL.startswith("sqlite"):
